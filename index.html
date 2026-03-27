@@ -1,26 +1,159 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Mini Among Us Style</title>
-  <link rel="stylesheet" href="style.css" />
+<meta charset="UTF-8">
+<title>Mini Among Us</title>
+
+<style>
+body {
+  margin: 0;
+  overflow: hidden;
+}
+
+/* Camera viewport */
+#viewport {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
+}
+
+/* World (moves for camera) */
+#world {
+  position: absolute;
+  transform-origin: top left;
+}
+
+/* Map */
+#map {
+  position: absolute;
+  width: 2000px;
+}
+
+/* Player */
+#player {
+  position: absolute;
+  width: 60px;
+  top: 300px;
+  left: 300px;
+}
+
+/* Joystick */
+#joystick {
+  position: fixed;
+  bottom: 40px;
+  left: 40px;
+  width: 120px;
+  height: 120px;
+  background: rgba(0,0,0,0.2);
+  border-radius: 50%;
+}
+
+#stick {
+  width: 50px;
+  height: 50px;
+  background: rgba(255,255,255,0.8);
+  border-radius: 50%;
+  position: absolute;
+  top: 35px;
+  left: 35px;
+}
+</style>
 </head>
+
 <body>
 
-  <div id="game">
+<div id="viewport">
+  <div id="world">
     <img id="map" src="settings/map.png" />
-
     <img id="player" src="settings/red.png" />
   </div>
+</div>
 
-  <!-- Simple joystick (basic buttons for now) -->
-  <div id="controls">
-    <button onclick="move('up')">⬆️</button>
-    <button onclick="move('left')">⬅️</button>
-    <button onclick="move('down')">⬇️</button>
-    <button onclick="move('right')">➡️</button>
-  </div>
+<div id="joystick">
+  <div id="stick"></div>
+</div>
 
-  <script src="script.js"></script>
+<script>
+const player = document.getElementById("player");
+const world = document.getElementById("world");
+const stick = document.getElementById("stick");
+const joystick = document.getElementById("joystick");
+
+let playerX = 300;
+let playerY = 300;
+
+let moveX = 0;
+let moveY = 0;
+
+let speed = 4;
+
+/* CAMERA FOLLOW */
+function updateCamera() {
+  const offsetX = window.innerWidth / 2 - playerX;
+  const offsetY = window.innerHeight / 2 - playerY;
+
+  world.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(1.5)`;
+}
+
+/* PLAYER POSITION */
+function updatePlayer() {
+  player.style.left = playerX + "px";
+  player.style.top = playerY + "px";
+}
+
+/* JOYSTICK */
+let dragging = false;
+
+joystick.addEventListener("touchstart", () => dragging = true);
+
+joystick.addEventListener("touchend", () => {
+  dragging = false;
+  moveX = 0;
+  moveY = 0;
+  stick.style.left = "35px";
+  stick.style.top = "35px";
+  player.src = "settings/red.png";
+});
+
+joystick.addEventListener("touchmove", (e) => {
+  if (!dragging) return;
+
+  const touch = e.touches[0];
+  const rect = joystick.getBoundingClientRect();
+
+  let x = touch.clientX - rect.left - 60;
+  let y = touch.clientY - rect.top - 60;
+
+  const max = 40;
+  const dist = Math.min(Math.sqrt(x*x + y*y), max);
+  const angle = Math.atan2(y, x);
+
+  moveX = Math.cos(angle) * (dist / max);
+  moveY = Math.sin(angle) * (dist / max);
+
+  stick.style.left = 35 + moveX * 40 + "px";
+  stick.style.top = 35 + moveY * 40 + "px";
+
+  player.src = "settings/redwalk.gif";
+
+  if (moveX < 0) player.style.transform = "scaleX(-1)";
+  else player.style.transform = "scaleX(1)";
+});
+
+/* GAME LOOP */
+function loop() {
+  playerX += moveX * speed;
+  playerY += moveY * speed;
+
+  updatePlayer();
+  updateCamera();
+
+  requestAnimationFrame(loop);
+}
+
+loop();
+</script>
+
 </body>
 </html>
