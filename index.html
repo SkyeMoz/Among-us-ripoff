@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Mini Among Us Style</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div id="game">
+    <img id="map" src="settings/map.png" />
+
+    <img id="player" src="settings/red.png" />
+  </div>
+
+  <!-- Simple joystick (basic buttons for now) -->
+  <div id="controls">
+    <button onclick="move('up')">⬆️</button>
+    <button onclick="move('left')">⬅️</button>
+    <button onclick="move('down')">⬇️</button>
+    <button onclick="move('right')">➡️</button>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
